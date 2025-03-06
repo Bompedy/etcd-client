@@ -53,6 +53,7 @@ func main() {
 	}
 
 	go func() {
+		fmt.Printf("Starting benchmark...")
 		start = time.Now()
 		for {
 			sentOps += 1
