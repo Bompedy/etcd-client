@@ -84,6 +84,7 @@ func main() {
 	total := time.Since(start)
 	ops := float64(totalOps) / total.Seconds()
 
+	fmt.Printf("Total clients: %d\n", numClients)
 	fmt.Printf("Total operations: %d\n", totalOps)
 	fmt.Printf("Total time taken: %v\n", total)
 	fmt.Printf("Data size: %d bytes\n", dataLength)
