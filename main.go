@@ -18,6 +18,7 @@ var numClients, numClientsError = strconv.ParseInt(os.Getenv("NUM_CLIENTS"), 10,
 var totalOps, totalOpsError = strconv.ParseInt(os.Getenv("TOTAL_OPS"), 10, 64)
 var dataLength, dataLengthError = strconv.ParseInt(os.Getenv("DATA_LENGTH"), 10, 64)
 var numThreads, threadsError = strconv.ParseInt(os.Getenv("NUM_THREADS"), 10, 64)
+var leaderEndpoint = os.Getenv("LEADER_ENDPOINT")
 var start = time.Now()
 
 func main() {
@@ -37,6 +38,10 @@ func main() {
 		panic(threadsError)
 	}
 
+	if leaderEndpoint == "" {
+		panic("LEADER_ENDPOINT is not set or is empty")
+	}
+
 	if numThreads <= 0 {
 		numThreads = 1
 	}
@@ -46,7 +51,7 @@ func main() {
 	for i := 0; i < int(numClients); i++ {
 		fmt.Printf("Connecting client %d to etcd\n", i)
 		connection, err := grpc.Dial(
-			"10.10.1.1:2379",
+			leaderEndpoint,
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 			grpc.WithBlock(),
 		)
@@ -92,6 +97,7 @@ func main() {
 
 	startGroup.Wait()
 	start = time.Now()
+	fmt.Printf("Starting benchmark!\n")
 	completeGroup.Wait()
 
 	total := time.Since(start)
