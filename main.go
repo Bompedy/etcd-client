@@ -43,8 +43,8 @@ func main() {
 
 	connections := make([]*etcdserverpb.KVClient, numClients)
 	data := strings.Repeat("a", int(dataLength))
-	//completed := make(chan struct{})
 	for i := 0; i < int(numClients); i++ {
+		fmt.Printf("Connecting client %d to etcd\n", i)
 		connection, err := grpc.Dial(
 			"10.10.1.1:2379",
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -54,6 +54,7 @@ func main() {
 			log.Fatal(err)
 		}
 
+		fmt.Printf("Connected client %d to etcd\n", i)
 		client := etcdserverpb.NewKVClient(connection)
 		connections[i] = &client
 	}
