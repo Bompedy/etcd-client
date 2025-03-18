@@ -46,10 +46,11 @@ func main() {
 		numThreads = 1
 	}
 
+	fmt.Printf("Leader endpoint: %s\n", leaderEndpoint)
 	connections := make([]*etcdserverpb.KVClient, numClients)
 	data := strings.Repeat("a", int(dataLength))
 	for i := 0; i < int(numClients); i++ {
-		fmt.Printf("Connecting client %d to etcd\n", i)
+		fmt.Printf("Connecting clientId %d to etcd\n", i)
 		connection, err := grpc.Dial(
 			leaderEndpoint,
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
