@@ -17,7 +17,7 @@ import (
 var numClients, numClientsError = strconv.ParseInt(os.Getenv("NUM_CLIENTS"), 10, 64)
 var totalOps, totalOpsError = strconv.ParseInt(os.Getenv("TOTAL_OPS"), 10, 64)
 var dataLength, dataLengthError = strconv.ParseInt(os.Getenv("DATA_LENGTH"), 10, 64)
-var numThreads, threadsError = strconv.ParseInt(os.Getenv("THREADS"), 10, 64)
+var numThreads, threadsError = strconv.ParseInt(os.Getenv("NUM_THREADS"), 10, 64)
 var start = time.Now()
 
 func main() {
