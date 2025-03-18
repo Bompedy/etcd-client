@@ -10,17 +10,15 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync/atomic"
+	"sync"
 	"time"
 )
 
 var numClients, numClientsError = strconv.ParseInt(os.Getenv("NUM_CLIENTS"), 10, 64)
 var totalOps, totalOpsError = strconv.ParseInt(os.Getenv("TOTAL_OPS"), 10, 64)
 var dataLength, dataLengthError = strconv.ParseInt(os.Getenv("DATA_LENGTH"), 10, 64)
-var sentOps = int64(0)
-var completedOps = int64(0)
+var numThreads, threadsError = strconv.ParseInt(os.Getenv("THREADS"), 10, 64)
 var start = time.Now()
-var endpoints = []string{"10.10.1.1:2379"}
 
 func main() {
 	if numClientsError != nil {
@@ -35,9 +33,17 @@ func main() {
 		panic(dataLengthError)
 	}
 
+	if threadsError != nil {
+		panic(threadsError)
+	}
+
+	if numThreads <= 0 {
+		numThreads = 1
+	}
+
 	connections := make([]*etcdserverpb.KVClient, numClients)
 	data := strings.Repeat("a", int(dataLength))
-	completed := make(chan struct{})
+	//completed := make(chan struct{})
 	for i := 0; i < int(numClients); i++ {
 		connection, err := grpc.Dial(
 			"10.10.1.1:2379",
@@ -52,40 +58,45 @@ func main() {
 		connections[i] = &client
 	}
 
-	go func() {
-		fmt.Printf("Starting benchmark...")
-		start = time.Now()
-		for {
-			sentOps += 1
-			if sentOps > totalOps {
-				break
-			}
+	var startGroup sync.WaitGroup
+	var completeGroup sync.WaitGroup
+	startGroup.Add(int(numThreads))
+	completeGroup.Add(int(numThreads))
 
-			go func(index int64) {
+	opsPerThread := int(totalOps / numThreads)
+	for i := 0; int64(i) < numThreads; i++ {
+		go func(threadID int) {
+			connectionIndex := int64(0)
+			startOp := threadID * opsPerThread
+			startGroup.Done()
+			startGroup.Wait()
+
+			for op := range opsPerThread {
 				ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 				defer cancel()
 				request := &etcdserverpb.PutRequest{
-					Key:   []byte(strconv.Itoa(int(index))),
+					Key:   []byte(strconv.Itoa(int(op + startOp))),
 					Value: []byte(data),
 				}
-				client := *connections[index%numClients]
+				connectionIndex += 1
+				client := *connections[connectionIndex%numClients]
 				_, err := client.Put(ctx, request)
 				if err != nil {
 					log.Fatal(err)
 				}
+			}
+			completeGroup.Done()
+		}(i)
+	}
 
-				if atomic.AddInt64(&completedOps, int64(1)) == totalOps {
-					close(completed)
-				}
-			}(sentOps)
-		}
-	}()
+	startGroup.Wait()
+	start = time.Now()
+	completeGroup.Wait()
 
-	<-completed
 	total := time.Since(start)
 	ops := float64(totalOps) / total.Seconds()
-
 	fmt.Printf("Total clients: %d\n", numClients)
+	fmt.Printf("Total threads: %d\n", numThreads)
 	fmt.Printf("Total operations: %d\n", totalOps)
 	fmt.Printf("Total time taken: %v\n", total)
 	fmt.Printf("Data size: %d bytes\n", dataLength)
