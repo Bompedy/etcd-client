@@ -218,6 +218,10 @@ func (client *Client) warmup() {
 				warmupValue := client.WarmupValues[i*client.NumClientOps+c]
 				value := warmupValue
 
+				if client.Clients[i] == nil {
+					panic("Why is the client null?")
+				}
+
 				ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 				request := &etcdserverpb.PutRequest{
 					Key:   key,
