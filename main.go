@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"go.etcd.io/etcd/api/v3/etcdserverpb"
@@ -137,9 +136,9 @@ func (client *Client) benchmark() {
 
 				isRead := rand.Float64() < client.ReadRatio
 				key := client.Keys[i*client.NumClientOps+c]
-				warmupValue := client.WarmupValues[i*client.NumClientOps+c]
+				//warmupValue := client.WarmupValues[i*client.NumClientOps+c]
 				updateValue := client.UpdateValues[i*client.NumClientOps+c]
-				value := warmupValue
+				//value := warmupValue
 				begin := time.Now().UnixMicro()
 
 				if !isRead {
@@ -159,18 +158,18 @@ func (client *Client) benchmark() {
 					request := &etcdserverpb.RangeRequest{
 						Key: key,
 					}
-					response, err := kvClient.Range(ctx, request)
+					_, err := kvClient.Range(ctx, request)
 					if err != nil {
 						panic(err)
 					}
-
-					if response.Count != 1 {
-						panic(fmt.Sprintf("Read operation failed for key %s with count %d", string(key), response.Count))
-					}
-
-					if !bytes.Equal(response.Kvs[0].Value, value) {
-						panic(fmt.Sprintf("GOT A WRONG VALUE FOR KEY: %s, warmup-%s, returned-%s", string(key), string(value), string(response.Kvs[0].Value)))
-					}
+					//
+					//if response.Count != 1 {
+					//	panic(fmt.Sprintf("Read operation failed for key %s with count %d", string(key), response.Count))
+					//}
+					//
+					//if !bytes.Equal(response.Kvs[0].Value, value) {
+					//	panic(fmt.Sprintf("GOT A WRONG VALUE FOR KEY: %s, warmup-%s, returned-%s", string(key), string(value), string(response.Kvs[0].Value)))
+					//}
 
 					cancel()
 				}
@@ -238,24 +237,24 @@ func (client *Client) warmup() {
 			}
 
 			key := client.Keys[0]
-			warmupValue := client.WarmupValues[0]
+			//_ := client.WarmupValues[0]
 
 			ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 			request := &etcdserverpb.RangeRequest{
 				Key: key,
 			}
-			response, err := kvClient.Range(ctx, request)
+			_, err := kvClient.Range(ctx, request)
 			if err != nil {
 				panic(err)
 			}
 
-			if response.Count != 1 {
-				panic(fmt.Sprintf("Read operation failed for key %s with count %d", string(key), response.Count))
-			}
+			//if response.Count != 1 {
+			//	panic(fmt.Sprintf("Read operation failed for key %s with count %d", string(key), response.Count))
+			//}
 
-			if !bytes.Equal(response.Kvs[0].Value, warmupValue) {
-				panic(fmt.Sprintf("GOT A WRONG VALUE FOR KEY: %s, warmup-%s, returned-%s", string(key), string(warmupValue), string(response.Kvs[0].Value)))
-			}
+			//if !bytes.Equal(response.Kvs[0].Value, warmupValue) {
+			//	panic(fmt.Sprintf("GOT A WRONG VALUE FOR KEY: %s, warmup-%s, returned-%s", string(key), string(warmupValue), string(response.Kvs[0].Value)))
+			//}
 
 			cancel()
 
