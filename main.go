@@ -59,16 +59,6 @@ func main() {
 		panic(err)
 	}
 
-	isReadMemory := os.Args[7]
-	if isReadMemory != "true" && isReadMemory != "false" {
-		panic("Must pass in true or false for read in memory!")
-	}
-
-	isWriteMemory := os.Args[8]
-	if isWriteMemory != "true" && isWriteMemory != "false" {
-		panic("Must pass in true or false for write in memory!")
-	}
-
 	numClientOps := numOps / (numClients * totalAddresses)
 	client := &Client{
 		Addresses:      addresses,
