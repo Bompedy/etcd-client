@@ -165,7 +165,7 @@ func (client *Client) benchmark() {
 					}
 
 					if response.Count != 1 {
-						panic(fmt.Sprintf("Put operation failed for key %s with count %d", string(key), response.Count))
+						panic(fmt.Sprintf("Read operation failed for key %s with count %d", string(key), response.Count))
 					}
 
 					if !bytes.Equal(response.Kvs[0].Value, value) {
@@ -250,7 +250,7 @@ func (client *Client) warmup() {
 			}
 
 			if response.Count != 1 {
-				panic(fmt.Sprintf("Put operation failed for key %s with count %d", string(key), response.Count))
+				panic(fmt.Sprintf("Read operation failed for key %s with count %d", string(key), response.Count))
 			}
 
 			if !bytes.Equal(response.Kvs[0].Value, warmupValue) {
