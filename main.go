@@ -30,7 +30,7 @@ type Client struct {
 	NumClients     int
 	NumClientOps   int
 
-	Clients      []etcdserverpb.KVClient
+	Clients      []*etcdserverpb.KVClient
 	Keys         [][]byte
 	WarmupValues [][]byte
 	UpdateValues [][]byte
@@ -68,7 +68,7 @@ func main() {
 		ReadRatio:      readRatio,
 		NumClients:     numClients,
 		NumClientOps:   numClientOps,
-		Clients:        make([]etcdserverpb.KVClient, numClients*totalAddresses),
+		Clients:        make([]*etcdserverpb.KVClient, numClients*totalAddresses),
 		Keys:           make([][]byte, numOps),
 		WarmupValues:   make([][]byte, numOps),
 		UpdateValues:   make([][]byte, numOps),
@@ -100,7 +100,7 @@ func (client *Client) connect() {
 
 			fmt.Printf("Connected client %d to etcd\n", i)
 			kvClient := etcdserverpb.NewKVClient(connection)
-			client.Clients[i] = kvClient
+			client.Clients[i] = &kvClient
 			connected++
 		}
 	}
@@ -190,7 +190,7 @@ func (client *Client) benchmark() {
 				atomic.AddUint32(&completedOps, 1)
 			}
 			group.Done()
-		}(i, client.Clients[i])
+		}(i, *client.Clients[i])
 	}
 
 	group.Wait()
@@ -258,7 +258,7 @@ func (client *Client) warmup() {
 			atomic.AddUint32(&completedOps, 1)
 
 			warmup.Done()
-		}(i, client.Clients[i])
+		}(i, *client.Clients[i])
 	}
 
 	warmup.Wait()
