@@ -97,7 +97,6 @@ func (client *Client) connect() {
 				panic(err)
 			}
 
-			fmt.Printf("Connected client %d to etcd\n", i)
 			kvClient := etcdserverpb.NewKVClient(connection)
 			client.Clients[connected] = kvClient
 			connected++
