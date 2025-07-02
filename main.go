@@ -37,24 +37,24 @@ type Client struct {
 }
 
 func main() {
-	addresses := strings.Split(os.Args[2], ",")
+	addresses := strings.Split(os.Args[1], ",")
 	totalAddresses := len(addresses)
-	dataSize, err := strconv.Atoi(os.Args[3])
+	dataSize, err := strconv.Atoi(os.Args[2])
 	if err != nil {
 		panic(err)
 	}
 
-	numOps, err := strconv.Atoi(os.Args[4])
+	numOps, err := strconv.Atoi(os.Args[3])
 	if err != nil {
 		panic(err)
 	}
 
-	readRatio, err := strconv.ParseFloat(os.Args[5], 32)
+	readRatio, err := strconv.ParseFloat(os.Args[4], 32)
 	if err != nil {
 		panic(err)
 	}
 
-	numClients, err := strconv.Atoi(os.Args[6])
+	numClients, err := strconv.Atoi(os.Args[5])
 	if err != nil {
 		panic(err)
 	}
