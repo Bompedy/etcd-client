@@ -100,7 +100,7 @@ func (client *Client) connect() {
 
 			fmt.Printf("Connected client %d to etcd\n", i)
 			kvClient := etcdserverpb.NewKVClient(connection)
-			client.Clients[i] = kvClient
+			client.Clients[connected] = kvClient
 			connected++
 		}
 	}
