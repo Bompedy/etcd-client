@@ -320,7 +320,7 @@ func (client *Client) displayResults(
 	minRead := math.MaxInt32
 	for i := range readCount {
 		timeRead := clientReadTimes[i]
-		avgWrite += timeRead
+		avgRead += timeRead
 		if timeRead > maxRead {
 			maxRead = timeRead
 		}
