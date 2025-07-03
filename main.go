@@ -333,7 +333,7 @@ func (client *Client) displayResults(
 	}
 
 	fmt.Printf("Benchmark complete!\n")
-	fmt.Printf("Connections Per Address: %d\n", client.NumClients*client.TotalAddresses)
+	fmt.Printf("Connections: %d\n", client.NumClients*client.TotalAddresses)
 	fmt.Printf("Data Size: %d\n", client.DataSize)
 	if writeCount > 0 && readCount > 0 {
 		fmt.Printf("All - Count(%d) OPS(%d) Avg(%d) Min(%d) Max(%d) 50th(%d) 90th(%d) 95th(%d) 99th(%d) 99.9th(%d) 99.99th(%d)\n",
