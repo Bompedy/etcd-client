@@ -206,7 +206,7 @@ func (client *Client) warmup() {
 	warmupBar.Add(1)
 	go func() {
 		defer warmupBar.Done()
-		progressBar("Warmup", client.NumOps+client.NumClients)
+		progressBar("Warmup", client.NumOps+(client.NumClients*client.TotalAddresses))
 	}()
 
 	for i := range client.Clients {
