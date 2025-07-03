@@ -195,7 +195,7 @@ func (client *Client) benchmark() {
 
 	end := time.Now().UnixMilli()
 	benchmarkBar.Wait()
-	displayResults(start, end, clientTimes, clientWriteTimes, clientReadTimes, int(count), int(writeCount), int(readCount))
+	client.displayResults(start, end, clientTimes, clientWriteTimes, clientReadTimes, int(count), int(writeCount), int(readCount))
 }
 
 func (client *Client) warmup() {
@@ -267,7 +267,7 @@ func (client *Client) warmup() {
 	warmupBar.Wait()
 }
 
-func displayResults(
+func (client *Client) displayResults(
 	start int64,
 	end int64,
 	clientTimes []int,
@@ -277,9 +277,6 @@ func displayResults(
 	writeCount int,
 	readCount int,
 ) {
-	fmt.Printf("Write count: %d\n", writeCount)
-	fmt.Printf("Read count: %d\n", readCount)
-	fmt.Printf("Total count: %d\n", count)
 
 	sort.Ints(clientTimes[:count])
 	sort.Ints(clientWriteTimes[:writeCount])
@@ -288,7 +285,6 @@ func displayResults(
 	avgAll := 0
 	maxAll := math.MinInt32
 	minAll := math.MaxInt32
-	minIndex := 0
 	for i := range count {
 		timeAll := clientTimes[i]
 		avgAll += timeAll
@@ -297,11 +293,8 @@ func displayResults(
 		}
 		if timeAll < minAll {
 			minAll = timeAll
-			minIndex = i
 		}
 	}
-	fmt.Printf("Read Min: %d\n", minIndex)
-
 	avgAll /= count
 
 	avgWrite := 0
@@ -315,11 +308,9 @@ func displayResults(
 		}
 		if timeWrite < minWrite {
 			minWrite = timeWrite
-			minIndex = i
 		}
 	}
 
-	fmt.Printf("Write Min: %d\n", minIndex)
 	if writeCount > 0 {
 		avgWrite /= writeCount
 	}
@@ -341,6 +332,9 @@ func displayResults(
 		avgRead /= readCount
 	}
 
+	fmt.Printf("Benchmark complete!\n")
+	fmt.Printf("Connections Per Address: %d\n", client.NumClients*client.TotalAddresses)
+	fmt.Printf("Data Size: %d\n", client.DataSize)
 	if writeCount > 0 && readCount > 0 {
 		fmt.Printf("\nAll - Count(%d) OPS(%d) Avg(%d) Min(%d) Max(%d) 50th(%d) 90th(%d) 95th(%d) 99th(%d) 99.9th(%d) 99.99th(%d)\n",
 			count, int(float32(count)/(float32(end-start)/1000.0)), avgAll, minAll, maxAll,
