@@ -155,7 +155,8 @@ func (client *Client) benchmark() {
 				} else {
 					ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 					request := &etcdserverpb.RangeRequest{
-						Key: key,
+						Key:          key,
+						Serializable: false,
 					}
 					_, err := kvClient.Range(ctx, request)
 					if err != nil {
@@ -240,7 +241,8 @@ func (client *Client) warmup() {
 
 			ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 			request := &etcdserverpb.RangeRequest{
-				Key: key,
+				Key:          key,
+				Serializable: false,
 			}
 			_, err := kvClient.Range(ctx, request)
 			if err != nil {
