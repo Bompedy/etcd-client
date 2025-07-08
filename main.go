@@ -56,6 +56,7 @@ func main() {
 	}
 
 	totalAddresses := len(addresses)
+	fmt.Printf("%d\n", totalAddresses)
 
 	//addresses := strings.Split(os.Args[1], ",")
 	//totalAddresses := len(addresses)
