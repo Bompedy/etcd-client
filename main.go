@@ -55,8 +55,7 @@ func main() {
 		panic(err)
 	}
 
-	split := strings.Split(addresses, ",")
-	totalAddresses := len(split)
+	totalAddresses := len(addresses)
 	fmt.Printf("%d\n", totalAddresses)
 
 	//addresses := strings.Split(os.Args[1], ",")
@@ -83,7 +82,7 @@ func main() {
 
 	numClientOps := numOps / (numClients * totalAddresses)
 	client := &Client{
-		Addresses:      split,
+		Addresses:      strings.Split(addresses, ","),
 		TotalAddresses: totalAddresses,
 		DataSize:       dataSize,
 		NumOps:         numClientOps * numClients * totalAddresses,
