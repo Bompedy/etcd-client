@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"go.etcd.io/etcd/api/v3/etcdserverpb"
 	"google.golang.org/grpc"
@@ -11,7 +12,6 @@ import (
 	"math/rand"
 	"os"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -36,31 +36,57 @@ type Client struct {
 }
 
 func main() {
-	addresses := strings.Split(os.Args[1], ",")
-	totalAddresses := len(addresses)
-	dataSize, err := strconv.Atoi(os.Args[2])
+	fs := flag.NewFlagSet("server", flag.ExitOnError)
+	var (
+		addresses  string
+		dataSize   int
+		numOps     int
+		readRatio  float64
+		numClients int
+	)
+	fs.StringVar(&addresses, "addresses", "", "peer addresses")
+	fs.IntVar(&dataSize, "data-size", 0, "message size")
+	fs.IntVar(&numOps, "num-ops", 0, "number of read or write operations")
+	fs.Float64Var(&readRatio, "read-ratio", 0.0, "ratio of operations that are reads")
+	fs.IntVar(&numClients, "num-clients", 0, "number of clients to split requests among")
+
+	err := fs.Parse(os.Args[1:])
 	if err != nil {
 		panic(err)
 	}
 
-	numOps, err := strconv.Atoi(os.Args[3])
-	if err != nil {
-		panic(err)
+	if len(addresses) < 1 {
+		panic("no addresses provided!")
 	}
 
-	readRatio, err := strconv.ParseFloat(os.Args[4], 32)
-	if err != nil {
-		panic(err)
-	}
+	split := strings.Split(addresses, ",")
+	totalAddresses := len(split)
 
-	numClients, err := strconv.Atoi(os.Args[5])
-	if err != nil {
-		panic(err)
-	}
+	//addresses := strings.Split(os.Args[1], ",")
+	//totalAddresses := len(addresses)
+	//dataSize, err := strconv.Atoi(os.Args[2])
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//numOps, err := strconv.Atoi(os.Args[3])
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//readRatio, err := strconv.ParseFloat(os.Args[4], 32)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//numClients, err := strconv.Atoi(os.Args[5])
+	//if err != nil {
+	//	panic(err)
+	//}
 
 	numClientOps := numOps / (numClients * totalAddresses)
 	client := &Client{
-		Addresses:      addresses,
+		Addresses:      split,
 		TotalAddresses: totalAddresses,
 		DataSize:       dataSize,
 		NumOps:         numClientOps * numClients * totalAddresses,
@@ -72,6 +98,12 @@ func main() {
 		WarmupValues:   make([][]byte, numOps),
 		UpdateValues:   make([][]byte, numOps),
 	}
+
+	fmt.Printf("%d\n", client.TotalAddresses)
+	fmt.Printf("%d\n", client.NumOps)
+	fmt.Printf("%d\n", client.NumClients)
+	fmt.Printf("%d\n", client.NumClientOps)
+	fmt.Printf("%d\n", client.DataSize)
 
 	for i := 0; i < numOps; i++ {
 		client.Keys[i] = []byte(fmt.Sprintf("key%d", i))
