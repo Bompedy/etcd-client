@@ -98,12 +98,12 @@ func main() {
 		WarmupValues:   make([][]byte, numOps),
 		UpdateValues:   make([][]byte, numOps),
 	}
-
-	fmt.Printf("%d\n", client.TotalAddresses)
-	fmt.Printf("%d\n", client.NumOps)
-	fmt.Printf("%d\n", client.NumClients)
-	fmt.Printf("%d\n", client.NumClientOps)
-	fmt.Printf("%d\n", client.DataSize)
+	//
+	//fmt.Printf("%d\n", client.TotalAddresses)
+	//fmt.Printf("%d\n", client.NumOps)
+	//fmt.Printf("%d\n", client.NumClients)
+	//fmt.Printf("%d\n", client.NumClientOps)
+	//fmt.Printf("%d\n", client.DataSize)
 
 	for i := 0; i < numOps; i++ {
 		client.Keys[i] = []byte(fmt.Sprintf("key%d", i))
