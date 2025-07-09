@@ -55,6 +55,10 @@ func main() {
 		panic(err)
 	}
 
+	if len(addresses) < 1 {
+		panic("no addresses provided!")
+	}
+
 	split := strings.Split(addresses, ",")
 	totalAddresses := len(split)
 	fmt.Printf("%d\n", totalAddresses)
