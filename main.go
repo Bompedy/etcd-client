@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"go.etcd.io/etcd/api/v3/etcdserverpb"
 	"google.golang.org/grpc"
@@ -12,6 +11,7 @@ import (
 	"math/rand"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -36,52 +36,31 @@ type Client struct {
 }
 
 func main() {
-	fs := flag.NewFlagSet("server", flag.ExitOnError)
-	var (
-		addresses  string
-		dataSize   int
-		numOps     int
-		readRatio  float64
-		numClients int
-	)
-	fs.StringVar(&addresses, "addresses", "", "peer addresses")
-	fs.IntVar(&dataSize, "data-size", 0, "message size")
-	fs.IntVar(&numOps, "num-ops", 0, "number of read or write operations")
-	fs.Float64Var(&readRatio, "read-ratio", 0.0, "ratio of operations that are reads")
-	fs.IntVar(&numClients, "num-clients", 0, "number of clients to split requests among")
-
-	err := fs.Parse(os.Args[1:])
+	addresses := strings.Split(os.Args[1], ",")
+	totalAddresses := len(addresses)
+	dataSize, err := strconv.Atoi(os.Args[2])
 	if err != nil {
 		panic(err)
 	}
 
-	totalAddresses := len(addresses)
+	numOps, err := strconv.Atoi(os.Args[3])
+	if err != nil {
+		panic(err)
+	}
 
-	//addresses := strings.Split(os.Args[1], ",")
-	//totalAddresses := len(addresses)
-	//dataSize, err := strconv.Atoi(os.Args[2])
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//numOps, err := strconv.Atoi(os.Args[3])
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//readRatio, err := strconv.ParseFloat(os.Args[4], 32)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//numClients, err := strconv.Atoi(os.Args[5])
-	//if err != nil {
-	//	panic(err)
-	//}
+	readRatio, err := strconv.ParseFloat(os.Args[4], 32)
+	if err != nil {
+		panic(err)
+	}
+
+	numClients, err := strconv.Atoi(os.Args[5])
+	if err != nil {
+		panic(err)
+	}
 
 	numClientOps := numOps / (numClients * totalAddresses)
 	client := &Client{
-		Addresses:      strings.Split(addresses, ","),
+		Addresses:      addresses,
 		TotalAddresses: totalAddresses,
 		DataSize:       dataSize,
 		NumOps:         numClientOps * numClients * totalAddresses,
